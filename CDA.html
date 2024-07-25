@@ -1,0 +1,396 @@
+<!DOCTYPE html>
+<html lang="ro">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Calculator CDA LASVEGAS</title>
+    <style>
+        body {
+            margin: 0;
+            font-family: Arial, sans-serif;
+            background-color: #000000;
+            overflow: hidden;
+        }
+        header {
+            display: flex;
+            justify-content: space-between; /* flex-start pentru centrare in text fild */
+            align-items: center;
+            background-color: #191D24;
+            padding: 16px 10px;
+            height: 83.5px;
+            color: white;
+            box-sizing: border-box;
+			position: relative; /* pozitie buton lang. */
+        }
+        header img.logo {
+            height: auto;
+            width: 200px;  /* Original era 160px, pe newbetting */
+			margin-left: 20px; /* similar cu language-select right: */
+        }
+        header .title {
+            text-align: center;
+            font-size: 28px;
+            font-weight: bold;
+            font-family: 'Arial', sans-serif; /* baza pe arial */
+            flex-grow: 1;
+        }
+        header .language-select {
+            position: absolute; /* relative pentru middle array */
+            right: 16px; /* obligatoriu absolute pentru right corner */
+            border: 3px solid #FFFFFF14; /* culoare de newbetting #FFFFFF14 */
+            border-radius: 10px; /* margini rotunjite buton */
+            padding: 5px;
+        }
+        .dropdown {
+            background-color: #191D24;
+            color: white;
+            border: none;
+            font-size: 16px;
+            padding: 10px;
+            border-radius: 5px;
+            cursor: pointer;
+        }
+        .main-content {
+            display: flex;
+            width: 1920px;
+            height: calc(100vh - 83.5px);
+            box-sizing: border-box;
+            overflow: hidden;
+        }
+        .text-section {
+            background-color: #191D24;
+            width: 35%;
+            padding: 16px 24px;
+            box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
+            box-sizing: border-box;
+            overflow-y: auto;
+            color: white;
+            border-radius: 10px; /* Rotunjirea marginilor */
+            overflow: hidden; /* Ascunde colțurile albe */
+        }
+        .text-section > div {
+            background-color: #2f2f2f;
+            border-radius: 10px;
+            margin-bottom: 20px;
+            padding: 20px;
+            border: 1px solid #3c3c3c; /* Contur gri */
+            box-shadow: 0 0 5px rgba(0, 0, 0, 0.5); /* Umbră subtilă pentru adâncime */
+        }
+        .image-section {
+            flex: 1;
+            background-color: #000000;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+        }
+        .image-section img {
+            max-width: 100%;
+            max-height: 100%;
+            object-fit: contain;
+            padding: 20px;
+            box-sizing: border-box;
+        }
+		#virtual-keyboard {
+   	        display: none; /* Ascunde tastatura inițial */
+        	position: absolute;
+        	bottom: 20px;
+   	     	right: 20px;
+  	      	display: grid;
+  	      	grid-template-columns: repeat(3, 1fr);
+  	     	gap: 10px;
+        	width: 150px; /* Ajustează dimensiunea după nevoie */
+        	background-color: #2f2f2f;
+        	padding: 10px;
+        	border-radius: 10px;
+        	box-shadow: 0 0 10px rgba(0, 0, 0, 0.5);
+        }
+        .key {
+        	background-color: #191D24;
+        	color: white;
+            border-radius: 5px;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            font-size: 18px;
+            padding: 15px;
+            cursor: pointer;
+        }
+        .key:hover {
+            background-color: #343a40;
+        }
+        .delete {
+            grid-column: span 2; /* Se întinde pe 2 coloane */
+        }
+        .confirm {
+            grid-column: span 3; /* Se întinde pe 3 coloane */
+            background-color: #d9534f; /* Culoare roșie pentru butonul de confirmare */
+        }
+        .confirm:hover {
+            background-color: #c9302c;
+        }
+        .box {
+            margin-bottom: 20px;
+            padding: 20px;
+            background-color: #2f2f2f;
+            border-radius: 5px;
+            border: 1px solid #444;
+        }
+        .amount-input {
+            background-color: #000000; /* Fundal negru */
+            color: #ffffff; /* Text alb */
+            border: 2px solid #444444; /* Bordură de bază, pentru contur */
+            border-radius: 10px; /* Colțuri rotunjite */
+            padding: 10px;
+            font-size: 18px;
+            box-sizing: border-box;
+            outline: none; /* Elimină conturul standard la focus */
+        }
+        .amount-input:focus {
+            border-color: #888888; /* Schimbă culoarea conturului la focus */
+            box-shadow: 0 0 10px rgba(255, 255, 255, 0.5); /* Adaugă efect glossy */
+        }
+        .amount-display {
+            background-color: #2a2a2a;
+            color: #f0f0f0;
+            border: 1px solid #3c3c3c; /* Contur discret */
+            border-radius: 5px;
+            padding: 8px 12px;
+            font-size: 16px;
+            font-weight: normal;
+            display: inline-block;
+            min-width: 80px;
+            text-align: center;
+            margin: 5px 0;
+            box-shadow: 0 0 5px 2px rgba(255, 255, 255, 0.2); /* Contur alb subtil */
+        }
+        .amount-input::-webkit-inner-spin-button,
+        .amount-input::-webkit-outer-spin-button {
+            -webkit-appearance: none;
+            margin: 0;
+        }
+        .amount-input::-moz-spin-button {
+            -moz-appearance: none;
+            margin: 0;
+        }
+        .input-container {
+            position: relative;
+        }
+        .error-message {
+            color: red; /* Culoare pentru mesajul de eroare */
+            font-size: 14px; /* Dimensiunea textului pentru mesajul de eroare */
+            margin-top: 5px; /* Spațiere față de câmpul de introducere */
+            display: none; /* Ascuns inițial */
+        }
+    </style>
+</head>
+<body>
+    <header>
+        <img src="https://btpro-lasvegas.betconstruct.com/images/logo.f52d76ae4bf8c6507ebc790ebc5195cb.png" alt="LasVegas Logo" class="logo" onclick="location.reload();">
+        <div class="title" data-ro="CALCULATOR COMISION DE ADMINISTRARE" data-en="ADMINISTRATION FEE CALCULATOR">CALCULATOR COMISION DE ADMINISTRARE</div>
+        <div class="language-select">
+            <select class="dropdown" id="language-dropdown" onchange="changeLanguage()">
+                <option value="ro">RO</option>
+                <option value="en">EN</option>
+            </select>
+        </div>
+    </header>
+        <p id="error-message" class="error-message" style="display: none;"></p>		
+            <div class="main-content">
+                <div class="text-section">
+            <div class="box">
+                <label for="amount" data-ro="Introduceți suma:" data-en="Enter amount:">Introduceți suma:</label>
+                <input type="number" id="amount" class="amount-input" placeholder="Introduceți suma în LEI" data-ro="Introduceți suma în LEI" data-en="Enter amount in LEI" step="0.01" max="45000">
+                <p id="error-message" class="error-message" style="display: none;">Limita maximă de depunere a fost atinsă!</p>
+			</div>	
+			<div>
+			    <p data-ro="Retragere:" data-en="Withdrawal:">Retragere:</p>
+			    <p id="deposit" class="amount-display">- LEI</p>
+			</div>
+			<div>
+			    <p data-ro="Impozit aplicat:" data-en="Applied tax:">Impozit aplicat:</p>
+ 			    <p id="fee" class="amount-display">- LEI</p>
+			</div>
+            <div class="box">
+                <p data-ro="Sumarul tranzacției de depunere:" data-en="Deposit transaction summary:">Sumarul tranzacției de depunere:</p>
+                <p id="summary"></p>
+            </div>
+            <div class="box">
+			    <p data-ro="Regulament pentru depuneri:" data-en="Deposit fee (CDA 2%):">Regulament pentru depuneri:</p>
+                <p data-ro="Conform legislației în vigoare, este obligatoriu ca sumele depuse pentru jocurile de noroc să provină dintr-o sursă deținută în calitate de titular conform OUG 114/2018. Pentru fiecare depunere în contul de joc se percepe un comision de administrare în valoare de 2%."
+                   data-en="According to current legislation, it is mandatory that the amounts deposited for gambling come from a source owned as the holder according to GEO 114/2018. An administrative fee of 2% is charged for each deposit into the game account.">
+                   Conform legislației în vigoare, este obligatoriu ca sumele depuse pentru jocurile de noroc să provină dintr-o sursă deținută în calitate de titular conform OUG 114/2018. Pentru fiecare depunere în contul de joc se percepe un comision de administrare în valoare de 2%.
+                </p>
+            </div>
+			    <div id="virtual-keyboard" class="virtual-keyboard">
+                <div class="key" onclick="addToInput('1')">1</div>
+                <div class="key" onclick="addToInput('2')">2</div>
+                <div class="key" onclick="addToInput('3')">3</div>
+                <div class="key" onclick="addToInput('4')">4</div>
+                <div class="key" onclick="addToInput('5')">5</div>
+                <div class="key" onclick="addToInput('6')">6</div>
+                <div class="key" onclick="addToInput('7')">7</div>
+                <div class="key" onclick="addToInput('8')">8</div>
+                <div class="key" onclick="addToInput('9')">9</div>
+                <div class="key" onclick="addToInput('0')">0</div>
+                <div class="key delete" onclick="removeLastCharacter()">&#9003;</div>
+                <div class="key confirm" onclick="confirmInput()">&#10004;</div>
+            </div>
+        </div>
+        <div class="image-section">
+            <img src="https://btpro-lasvegas.betconstruct.com/images/client-transaction-illustration.c4684c2b5c2e72455f4aa2f8ea43ffdc.png" alt="Client Transaction Illustration">
+        </div>
+    </div>
+<script>
+    // JavaScript pentru calculul CDA
+    const amountInput = document.getElementById('amount');
+    const depositDisplay = document.getElementById('deposit');
+    const feeDisplay = document.getElementById('fee');
+    const summaryDisplay = document.getElementById('summary');
+    const errorMessage = document.getElementById('error-message');
+
+    amountInput.addEventListener('input', () => {
+        let amount = parseFloat(amountInput.value.replace(/\./g, '').replace(/,/g, '.'));
+        if (!isNaN(amount)) {
+            if (amount < 1 || amount > 45000) {
+                errorMessage.style.display = 'block';
+                if (amount < 1) {
+                    errorMessage.textContent = 'Suma minimă de depunere este de 1 LEU!';
+                } else {
+                    errorMessage.textContent = 'Limita maximă de depunere a fost atinsă!';
+                }
+                amountInput.value = '';
+                depositDisplay.textContent = '- LEI';
+                feeDisplay.textContent = '- LEI';
+                summaryDisplay.textContent = '';
+            } else {
+                errorMessage.style.display = 'none';
+                const fee = amount * 0.02;
+                const deposit = amount - fee;
+                depositDisplay.textContent = `${deposit.toLocaleString('ro-RO', { minimumFractionDigits: 2, maximumFractionDigits: 2 })} LEI`;
+                feeDisplay.textContent = `${fee.toLocaleString('ro-RO', { minimumFractionDigits: 2, maximumFractionDigits: 2 })} LEI`;
+                summaryDisplay.textContent = `
+                    Suma primită de la client a fost de ${amount.toLocaleString('ro-RO', { minimumFractionDigits: 2, maximumFractionDigits: 2 })} LEI, la care se aplică comisionul de administrare (CDA 2%) de ${fee.toLocaleString('ro-RO', { minimumFractionDigits: 2, maximumFractionDigits: 2 })} LEI urmând ca diferența de ${deposit.toLocaleString('ro-RO', { minimumFractionDigits: 2, maximumFractionDigits: 2 })} LEI să fie disponibilă în balanța contului de client.
+                `;
+            }
+        } else {
+            depositDisplay.textContent = '- LEI';
+            feeDisplay.textContent = '- LEI';
+            summaryDisplay.textContent = '';
+        }
+    });
+
+    // Language change function
+    function changeLanguage() {
+    const language = document.getElementById('language-dropdown').value;
+    document.querySelectorAll('[data-ro]').forEach(element => {
+        if (element.tagName.toLowerCase() === 'input' && element.hasAttribute('placeholder')) {
+            // Change placeholder for input elements
+            element.setAttribute('placeholder', element.getAttribute(`data-${language}`));
+        } else {
+            // Change textContent for other elements
+            element.textContent = element.getAttribute(`data-${language}`);
+        }
+    });
+}
+document.addEventListener('DOMContentLoaded', function() {
+    const amountInput = document.getElementById('amount');
+    const keyboard = document.getElementById('virtual-keyboard');
+    const errorMessage = document.getElementById('error-message');
+
+    // Afișează tastatura la focus
+    amountInput.addEventListener('focus', function() {
+        keyboard.style.display = 'grid';
+    });
+
+    // Ascunde tastatura la click în afara tastaturii sau a inputului
+    document.addEventListener('click', function(event) {
+        if (!keyboard.contains(event.target) && event.target !== amountInput) {
+            keyboard.style.display = 'none';
+        }
+    });
+
+    // Asigură-te că tastatura este ascunsă inițial
+    keyboard.style.display = 'none';
+
+    // Ascunde mesajul de eroare când câmpul de introducere este focalizat
+    amountInput.addEventListener('focus', function() {
+        errorMessage.style.display = 'none';
+    });
+});
+
+function addToInput(value) {
+    const inputField = document.getElementById('amount');
+    const errorMessage = document.getElementById('error-message');
+    let currentValue = inputField.value;
+
+    if (value === '.' && currentValue.includes('.')) {
+        return; // Permite doar un singur punct decimal
+    }
+
+    if (value === '0' && (currentValue === '' || currentValue === '0')) {
+        return; // Evită zerourile multiple la început
+    }
+
+    if (currentValue === '0' && value !== '.') {
+        currentValue = ''; // Resetează dacă s-a început cu 0 și se introduce altceva decât punct
+    }
+
+    const newValue = currentValue + value;
+    if (parseFloat(newValue) > 45000) {
+        showError('Suma maximă este 45000 LEI!', 'Maximum amount is 45000 LEI!');
+        return;
+    }
+
+    inputField.value = newValue;
+    errorMessage.style.display = 'none'; // Ascunde mesajul de eroare dacă totul este corect
+    updateCalculations();
+}
+
+function removeLastCharacter() {
+    const inputField = document.getElementById('amount');
+    const errorMessage = document.getElementById('error-message');
+    inputField.value = inputField.value.slice(0, -1);
+    errorMessage.style.display = 'none'; // Ascunde mesajul de eroare dacă totul este corect
+    updateCalculations();
+}
+
+function confirmInput() {
+    const inputField = document.getElementById('amount');
+    const errorMessage = document.getElementById('error-message');
+    let currentValue = inputField.value;
+
+    const amount = parseFloat(currentValue);
+    if (isNaN(amount) || amount < 1 || amount > 45000) {
+        showError('Suma trebuie să fie între 1 și 45000 LEI!', 'Amount must be between 1 and 45000 LEI!');
+        return;
+    }
+
+    errorMessage.style.display = 'none'; // Ascunde mesajul de eroare dacă totul este corect
+    console.log('Input confirmed: ', currentValue);
+    updateCalculations();
+}
+
+function showError(messageRo, messageEn) {
+    const errorMessage = document.getElementById('error-message');
+    const language = document.getElementById('language-dropdown').value;
+    errorMessage.textContent = language === 'ro' ? messageRo : messageEn;
+    errorMessage.style.display = 'block';
+}
+
+function updateCalculations() {
+    const inputField = document.getElementById('amount');
+    const amount = parseFloat(inputField.value) || 0;
+
+    const taxRate = 0.03;
+    const taxAmount = amount * taxRate;
+    const withdrawalAmount = amount - taxAmount;
+
+    document.getElementById('deposit').textContent = withdrawalAmount.toFixed(2) + " LEI";
+    document.getElementById('fee').textContent = taxAmount.toFixed(2) + " LEI";
+    document.getElementById('summary').textContent = `
+        Suma brută pe care clientul dorește să o retragă este de ${amount.toFixed(2)} LEI, la care se aplică impozitul aferent veniturilor realizate de ${taxAmount.toFixed(2)} LEI, urmând ca diferența de ${withdrawalAmount.toFixed(2)} LEI să fie înmânată clientului.
+    `;
+}
+</script>
+</body>
+</html>
